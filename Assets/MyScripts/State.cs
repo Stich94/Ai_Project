@@ -1,18 +1,29 @@
 using System.Collections;
 using System.Collections.Generic;
+using MyScripts;
 using UnityEngine;
 
-public class State : MonoBehaviour
+public abstract class State : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    protected EnemyFSM enemyFsm;
+    
+    // constructor
+    public State(EnemyFSM enemyFsm)
+    {
+        this.enemyFsm = enemyFsm;
+    }
+
+    public virtual void OnEnter()
+    {
+        
+    }
+    
+    public abstract void OnUpdate();
+
+    public virtual void OnExit()
     {
         
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public abstract void CheckTransition();
 }
