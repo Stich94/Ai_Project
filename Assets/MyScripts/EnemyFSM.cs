@@ -12,6 +12,8 @@ namespace MyScripts
         private NavMeshAgent agent;
         [SerializeField] private LayerMask playerMask;
         [SerializeField] private LayerMask obstacleMask;
+        [SerializeField, Range(15f, 30f)] private float playerCalcDistance;
+        
 
         [Header("FoV")] [SerializeField] private float viewDistance = 6f;
         [SerializeField] private float viewAngle = 60f;
@@ -20,9 +22,9 @@ namespace MyScripts
         
         
         [Header("Patrol")] [SerializeField] private float patrolSpeed;
-        
-        
-        
+        [SerializeField] private float pointWaitTime = 6f;
+        private Collider[] player;
+
 
         public float Speed => speed;
 
@@ -31,7 +33,7 @@ namespace MyScripts
         {
             agent = GetComponent<NavMeshAgent>();
             // currentState = new Idle(this, agent, 20f, 5f, 3f);
-            currentState = new Patrol(this, agent, 4f, 2f, 5f, 90f, playerMask, obstacleMask);
+            currentState = new Patrol(this, agent, pointWaitTime, 2f, 5f, 90f, playerMask, obstacleMask);
         }
 
         private void Update()
@@ -45,11 +47,7 @@ namespace MyScripts
             currentState = newState;
             currentState.OnEnter();
         }
-
-        private void FoV()
-        {
-            
-        }
+        
 
         private bool isInRange(Vector3 position)
         {
@@ -57,7 +55,7 @@ namespace MyScripts
         }
 
 
-        private bool IsInView(Vector3 position)
+        public bool IsInView(Vector3 position)
         {
             if (!isInRange(position)) return false;
             
@@ -68,8 +66,48 @@ namespace MyScripts
             return angletemp < viewAngle / 2;
         }
 
+        public bool IsInCalculatePlayerPosRange(Vector3 position) 
+        {
+             player = Physics.OverlapSphere(position, playerCalcDistance, playerMask);
+             Debug.Log("Found player: " + player.Length);
+             if(player != null && player.Length > 0)
+             {
+                 Debug.Log("Player is in Render Range");
+                 if (CalculateDistanceToPlayer(player[0].transform.position))
+                 {
+                     Debug.Log("is in calc range");
+                    this.GetComponent<MeshRenderer>().material.color = Color.magenta;
+                    return true;
 
-            private void OnDrawGizmosSelected()
+                 }
+                 else
+                 {
+                     this.GetComponent<MeshRenderer>().material.color = Color.red;
+                     return false;
+                 }
+
+             }
+
+             return false;
+
+        }
+
+        // TODO: change calc from viewDistance to render distance
+        private bool CalculateDistanceToPlayer(Vector3 position)
+        {
+            float distance = Vector3.Distance(position, this.transform.position);
+            if (distance < viewDistance)
+            {
+                Debug.Log("Player is in ViewRange");
+                // enemyFsm.transform.LookAt(playerPos);
+                return true;
+            }
+
+            return false;
+        }
+
+
+        private void OnDrawGizmosSelected()
         {
             // Gizmos.color = Color.green;
             // Gizmos.DrawWireSphere(transform.position, 5f);
@@ -97,6 +135,9 @@ namespace MyScripts
         
                 Gizmos.DrawRay(pos, right * viewDistance);
                 Gizmos.DrawRay(pos, left * viewDistance);
+                
+                Gizmos.color = Color.magenta;
+                Gizmos.DrawWireSphere(transform.position, playerCalcDistance);
             }
     }
 }

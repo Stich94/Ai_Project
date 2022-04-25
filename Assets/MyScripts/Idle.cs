@@ -15,6 +15,7 @@ namespace MyScripts
         private NavMeshAgent agent;
         private float currentWaitTime = 0f;
         private bool walkPointSet = false;
+        private GameObject target;
 
         public Idle(EnemyFSM enemyFsm, NavMeshAgent agent, float rotationSpeed, float walkpointRange, float waitTime) : base(enemyFsm)
         {
@@ -32,13 +33,15 @@ namespace MyScripts
                 SearchWalkPoint();
             }
 
-            Debug.Log("current secs: " + currentWaitTime);
             
         }
 
         public override void CheckTransition()
         {
+            if(target == null) return;
             
+            
+                
         }
 
         private void SearchWalkPoint()

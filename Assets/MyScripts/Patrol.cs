@@ -20,7 +20,7 @@ namespace MyScripts
         private LayerMask obstacleMask;
         private bool walkPointSet = false;
         private float walkPointRange = 10f;
-        private Transform target;
+        private GameObject target;
 
         private bool playerIsInView;
         private bool playerIsInRange;
@@ -52,19 +52,19 @@ namespace MyScripts
         public override void OnUpdate()
         {
             currentWaitTime += Time.deltaTime;
+            // playerPos = GameManager.Instance.GetPlayerPos();
 
-            
+            CheckTransition();
             Roaming();
           
-            playerPos = GameManager.Instance.GetPlayerPos();
-            float distance = Vector3.Distance(playerPos, enemyFsm.transform.position);
-            if (distance < viewRadius)
-            {
-                Debug.Log("Player is in ViewRange");
-                enemyFsm.transform.LookAt(playerPos);
-            }
+            // float distance = Vector3.Distance(playerPos, enemyFsm.transform.position);
+            // if (distance < viewRadius)
+            // {
+            //     Debug.Log("Player is in ViewRange");
+            //     enemyFsm.transform.LookAt(playerPos);
+            // }
 
-            Debug.Log("dist :" + distanceToWalkPoint.magnitude);
+            // Debug.Log("dist :" + distanceToWalkPoint.magnitude);
         }
 
         private bool WaitOnPosition(float time)
@@ -129,6 +129,12 @@ namespace MyScripts
 
         public override void CheckTransition()
         {
+
+            if (enemyFsm.IsInCalculatePlayerPosRange(enemyFsm.transform.position))
+            {
+                playerPos = GameManager.Instance.GetPlayerPos();
+            }
+            
             
         }
 
