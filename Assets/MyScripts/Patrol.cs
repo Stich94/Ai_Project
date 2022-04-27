@@ -83,7 +83,7 @@ namespace MyScripts
                 // walkPoint = enemyFsm.transform.position + Random.insideUnitSphere * walkPointRange;
                 SearchWayPoint();
 
-                Instantiate(new GameObject("Roaming_Destination"), walkPoint, Quaternion.identity);
+                // Instantiate(new GameObject("Roaming_Destination"), walkPoint, Quaternion.identity);
                 
             }
             
@@ -113,14 +113,20 @@ namespace MyScripts
 
             if (enemyFsm.PlayerDistanceRangeCheck(enemyFsm.transform.position))
             {
-                playerPos = GameManager.Instance.GetPlayerPos();
+                
+                // playerPos = GameManager.Instance.GetPlayerPos();
                 Transform playerTransform = GameManager.Instance.GetPlayerTransform();
                 if (playerTransform == null)
                 {
                     Debug.LogError("NO Player Transform found");
                 }
-                enemyFsm.ChangeState(new Chase(enemyFsm, agent, playerTransform, enemyFsm.ChaseDistance,
-                    enemyFsm.ChaseWaitTime, enemyFsm.ChaseSpeed, playerMask));
+
+                if (enemyFsm.IsInView(playerTransform.position))
+                {
+                    enemyFsm.ChangeState(new Chase(enemyFsm, agent, playerTransform, enemyFsm.ChaseDistance,
+                        enemyFsm.ChaseWaitTime, enemyFsm.ChaseSpeed, playerMask));
+                }
+                
             }
             
             

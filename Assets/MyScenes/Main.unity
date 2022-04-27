@@ -426,15 +426,18 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   playerCalcDistance: 20.3
-  viewDistance: 6
+  angularSpeed: 120
+  viewDistance: 14
   viewAngle: 60
-  rotationSpeed: 20
   patrolSpeed: 3
   pointWaitTime: 6
   startPoint: {x: 0, y: 0, z: 0}
   chaseSpeed: 6
   chaseWaitTime: 6
   chaseDistance: 20
+  attackSpeed: 0
+  attackWaitTime: 1
+  attackDistance: 1
 --- !u!1 &675970388
 GameObject:
   m_ObjectHideFlags: 0
