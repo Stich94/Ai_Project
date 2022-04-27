@@ -5,7 +5,7 @@ namespace MyScripts
 {
     public class Attack : State
     {
-        private GameObject target = null;
+        private GameObject target;
         private EnemyFSM enemyFSM;
         private NavMeshAgent agent;
         
@@ -18,10 +18,7 @@ namespace MyScripts
         public override void OnEnter()
         {
             base.OnEnter();
-            if (!target == null)
-            {
-                
-            }
+            
         }
 
         public override void OnUpdate()
@@ -43,7 +40,7 @@ namespace MyScripts
 
         public override void CheckTransition()
         {
-            throw new System.NotImplementedException();
+            
         }
     }
 }

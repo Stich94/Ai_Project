@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -13,27 +16,47 @@ namespace MyScripts
         [SerializeField] private LayerMask playerMask;
         [SerializeField] private LayerMask obstacleMask;
         [SerializeField, Range(15f, 30f)] private float playerCalcDistance;
+        [SerializeField] private float angularSpeed = 120f;
+        
+        private Collider[] player;
         
 
         [Header("FoV")] [SerializeField] private float viewDistance = 6f;
         [SerializeField] private float viewAngle = 60f;
+        public float ViewDistance => viewDistance;
+
         
-        [Header("Idle")] [SerializeField] private float rotationSpeed;
-        
-        
-        [Header("Patrol")] [SerializeField] private float patrolSpeed;
+        [Header("Patrol")] [SerializeField] private float patrolSpeed = 3.5f;
         [SerializeField] private float pointWaitTime = 6f;
-        private Collider[] player;
+        [SerializeField] private Vector3 startPoint;
+        public float PatrolSpeed => patrolSpeed;
+        public float PointWaitTime => pointWaitTime;
+        public Vector3 StartPoint => startPoint;
+        
+        
+        [Header("Chase")] [SerializeField] private float chaseSpeed;
+        [SerializeField] private float chaseWaitTime = 6f;
+        [SerializeField] private float chaseDistance = 20f;
+        public float ChaseDistance => chaseDistance;
+        public float ChaseWaitTime => chaseWaitTime;
+        public float ChaseSpeed => chaseSpeed;
+        
+        private GameObject target = null;
+
+        
+        // TODO: - Add Boid
+        public static List<EnemyFSM> enemies = new List<EnemyFSM>();
 
 
-        public float Speed => speed;
+        
 
 
         private void Awake()
         {
             agent = GetComponent<NavMeshAgent>();
+            startPoint = transform.position;
             // currentState = new Idle(this, agent, 20f, 5f, 3f);
-            currentState = new Patrol(this, agent, pointWaitTime, 2f, 5f, 90f, playerMask, obstacleMask);
+            currentState = new Patrol(this,agent,patrolSpeed, pointWaitTime, angularSpeed, viewDistance, viewAngle, playerMask);
         }
 
         private void Update()
@@ -47,14 +70,30 @@ namespace MyScripts
             currentState = newState;
             currentState.OnEnter();
         }
-        
+
+        public GameObject GetObject()
+        {
+            return this.gameObject;
+        }
+
 
         private bool isInRange(Vector3 position)
         {
             return Vector3.Distance(transform.position, position) <= viewDistance;
         }
-
-
+        
+        /// <summary>
+        /// Check if other object is in range with distance
+        /// </summary>
+        /// <param name="other_position"></param>
+        /// <param name="distance"></param>
+        /// <returns></returns>
+        public bool isInRange(Vector3 otherPos, float distance)
+        {
+            return Vector3.Distance(this.transform.position, otherPos) <= distance;
+        }
+        
+        
         public bool IsInView(Vector3 position)
         {
             if (!isInRange(position)) return false;
@@ -66,44 +105,41 @@ namespace MyScripts
             return angletemp < viewAngle / 2;
         }
 
-        public bool IsInCalculatePlayerPosRange(Vector3 position) 
+        public bool PlayerDistanceRangeCheck(Vector3 enemyPosition) 
         {
-             player = Physics.OverlapSphere(position, playerCalcDistance, playerMask);
-             Debug.Log("Found player: " + player.Length);
+             player = Physics.OverlapSphere(enemyPosition, playerCalcDistance, playerMask);
+             
              if(player != null && player.Length > 0)
              {
-                 Debug.Log("Player is in Render Range");
-                 if (CalculateDistanceToPlayer(player[0].transform.position))
+                 if (CalculateDistanceToPlayer(player[0].transform.position, playerCalcDistance))
                  {
-                     Debug.Log("is in calc range");
                     this.GetComponent<MeshRenderer>().material.color = Color.magenta;
+                    target = player[0].gameObject;
                     return true;
 
                  }
-                 else
-                 {
-                     this.GetComponent<MeshRenderer>().material.color = Color.red;
-                     return false;
-                 }
-
+                 this.GetComponent<MeshRenderer>().material.color = Color.red;
+                 return false;
              }
-
              return false;
-
         }
 
         // TODO: change calc from viewDistance to render distance
-        private bool CalculateDistanceToPlayer(Vector3 position)
+        private bool CalculateDistanceToPlayer(Vector3 position, float getDistance)
         {
             float distance = Vector3.Distance(position, this.transform.position);
-            if (distance < viewDistance)
+            if (distance < getDistance)
             {
-                Debug.Log("Player is in ViewRange");
-                // enemyFsm.transform.LookAt(playerPos);
                 return true;
             }
 
             return false;
+        }
+
+
+        public Vector3 GetPos()
+        {
+            return this.transform.position;
         }
 
 
@@ -114,8 +150,8 @@ namespace MyScripts
             
             
         }
-
-            private void OnDrawGizmos()
+        
+        private void OnDrawGizmos()
             {
                 Gizmos.color = Color.green;
                 Gizmos.DrawWireSphere(transform.position, viewDistance);
@@ -138,6 +174,10 @@ namespace MyScripts
                 
                 Gizmos.color = Color.magenta;
                 Gizmos.DrawWireSphere(transform.position, playerCalcDistance);
+                
+                
             }
+            
+            
     }
 }

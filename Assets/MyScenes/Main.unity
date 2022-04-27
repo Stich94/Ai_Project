@@ -431,6 +431,10 @@ MonoBehaviour:
   rotationSpeed: 20
   patrolSpeed: 3
   pointWaitTime: 6
+  startPoint: {x: 0, y: 0, z: 0}
+  chaseSpeed: 6
+  chaseWaitTime: 6
+  chaseDistance: 20
 --- !u!1 &675970388
 GameObject:
   m_ObjectHideFlags: 0
