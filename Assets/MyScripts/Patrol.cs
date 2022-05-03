@@ -47,19 +47,12 @@ namespace MyScripts
         public override void OnUpdate()
         {
             currentWaitTime += Time.deltaTime;
-            // playerPos = GameManager.Instance.GetPlayerPos();
+
 
             CheckTransition();
             Roaming();
           
-            // float distance = Vector3.Distance(playerPos, enemyFsm.transform.position);
-            // if (distance < viewRadius)
-            // {
-            //     Debug.Log("Player is in ViewRange");
-            //     enemyFsm.transform.LookAt(playerPos);
-            // }
-
-            // Debug.Log("dist :" + distanceToWalkPoint.magnitude);
+           
         }
 
         private bool WaitOnPosition(float time)
@@ -131,6 +124,8 @@ namespace MyScripts
             
             
         }
+
+        
 
     }
 }

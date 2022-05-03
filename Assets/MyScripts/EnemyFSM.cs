@@ -20,6 +20,7 @@ namespace MyScripts
         private GameObject target;
         private Collider[] player;
         public State CurrentState => currentState;
+        public LayerMask PlayerMask => playerMask;
 
 
         [Header("FoV")] [SerializeField] private float viewDistance = 6f;
@@ -35,6 +36,12 @@ namespace MyScripts
         public float PointWaitTime => pointWaitTime;
         public Vector3 StartPoint => startPoint;
 
+        [Tooltip("If the player is out of Range in Chase State, look out for player on last pos")]
+        [Header("Lookout for Player")] [SerializeField] private float minAngle = -60f;
+        [SerializeField] private float maxAngle = 60f;
+        public float MaxAngle => maxAngle;
+        public float MinAngle => minAngle;
+
 
         [Header("Chase")] [SerializeField] private float chaseSpeed;
         [SerializeField] private float chaseWaitTime = 6f;
@@ -45,8 +52,10 @@ namespace MyScripts
 
         // TODO: - ATTACK not started yet
         [Header("Attack")] [SerializeField] private float attackSpeed;
+        [SerializeField] private float damage = 10f;
         [SerializeField] private float attackWaitTime = 1f;
         [SerializeField] private float attackDistance = 1f;
+        public float Damage => damage;
         public float AttackDistance => attackDistance;
         public float AttackWaitTime => attackWaitTime;
         public float AttackSpeed => attackSpeed;
@@ -151,6 +160,10 @@ namespace MyScripts
         {
             Gizmos.color = Color.green;
             Gizmos.DrawWireSphere(transform.position, viewDistance);
+            
+            // show attack range
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(transform.position, attackDistance);
             if (GameManager.Instance == null) return;
 
 
@@ -169,8 +182,11 @@ namespace MyScripts
             Gizmos.DrawRay(pos, right * viewDistance);
             Gizmos.DrawRay(pos, left * viewDistance);
 
+            // in this range check for player distance
             Gizmos.color = Color.magenta;
             Gizmos.DrawWireSphere(transform.position, playerCalcDistance);
+
+            
         }
     }
 }

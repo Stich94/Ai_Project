@@ -35,4 +35,9 @@ public class GameManager : MonoBehaviour
     {
         return Instance.player.transform;
     }
+    
+    public GameObject GetPlayer()
+    {
+        return Instance.player.gameObject;
+    }
 }

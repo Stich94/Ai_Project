@@ -32,16 +32,11 @@ namespace MyScripts
             {
                 SearchWalkPoint();
             }
-
-            
         }
 
         public override void CheckTransition()
         {
             if(target == null) return;
-            
-            
-                
         }
 
         private void SearchWalkPoint()
@@ -53,12 +48,6 @@ namespace MyScripts
             agent.SetDestination(walkPoint);
             currentWaitTime = 0f;
 
-        }
-
-        IEnumerator IWait()
-        {
-            yield return new WaitForSeconds(waitTime);
-            SearchWalkPoint();
         }
     }
 }

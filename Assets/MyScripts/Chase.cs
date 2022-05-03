@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.AI;
+using Random = UnityEngine.Random;
 
 namespace MyScripts
 {
     public class Chase : State
     {
-        public Chase(EnemyFSM enemyFsm) : base(enemyFsm)
-        {
-        }
+        
 
         private Transform target;
         private NavMeshAgent agent;
@@ -20,10 +20,13 @@ namespace MyScripts
         private Vector3 lastKnownTargetPos;
 
         private float timer;
+        private float rotationWaitTimer = 0f;
         private bool walkPointSet = false;
         private LayerMask playerMask;
         bool isChasing = false;
         float lengthCheck = 0.5f;
+        private float attackRange;
+        private float rotationSpeed = 20f;
 
 
         public Chase(EnemyFSM enemyFsm, NavMeshAgent agent, Transform target, float chaseDistance, float waitTime, float chaseSpeed, LayerMask playerMask) : base(enemyFsm)
@@ -40,6 +43,7 @@ namespace MyScripts
         {
             base.OnEnter();
             agent.speed = chaseSpeed;
+            attackRange = enemyFsm.AttackDistance;
         }
 
         public override void OnUpdate()
@@ -86,11 +90,15 @@ namespace MyScripts
             }
         }
 
+        /// <summary>
+        /// wait on last known target pos, if waittime is over, go back to start pos
+        /// </summary>
         private void WaitOnLastPlayerPos()
         {
             if (!hasTarget && DistanceCheck(lastKnownTargetPos))
             {
                 Debug.Log("Distance check true - now waiting...");
+                LookoutForPlayer(2f);
                 timer += Time.deltaTime;
                 if (timer >= waitTime)
                 {
@@ -123,11 +131,19 @@ namespace MyScripts
 
         public override void CheckTransition()
         {
+            
             if (walkPointSet && DistanceCheck(enemyFsm.StartPoint))
             {
                 enemyFsm.ChangeState(new Patrol(enemyFsm, agent, enemyFsm.PatrolSpeed, enemyFsm.PointWaitTime, 120f,
                     enemyFsm.ViewDistance, enemyFsm.ViewAngle, playerMask));
+                
             }
+
+            if (enemyFsm.isInRange(target.transform.position, attackRange))
+            {
+                enemyFsm.ChangeState(new Attack(enemyFsm, agent, target, enemyFsm.AttackSpeed, enemyFsm.AttackDistance, enemyFsm.AttackWaitTime ));
+            }
+            
         }
 
         private bool DistanceCheck(Vector3 targetPos)
@@ -139,6 +155,25 @@ namespace MyScripts
                 return true;
             }
             return false;
+        }
+        
+        /// <summary>
+        /// Rotate on last known target pos in a random angle, to find player
+        /// </summary>
+        /// <param name="waitTime"></param>
+        private void LookoutForPlayer(float waitTime)
+        {
+            rotationWaitTimer += Time.deltaTime;
+            if (rotationWaitTimer >= waitTime)
+            {
+                Debug.Log("Rotate");
+                float randomAngle = Random.Range(enemyFsm.MinAngle, enemyFsm.MaxAngle);
+                // TODO: - Rotate on last known target pos in a random angle, to find player
+                
+                rotationWaitTimer = 0f;
+                
+                
+            }
         }
 
         private void OnDestroy()
